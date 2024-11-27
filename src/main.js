@@ -1,5 +1,5 @@
-const MAX_POINTS = 100;
-const THRESHOLD = 20; // minPts?
+const MAX_POINTS = 500;
+const THRESHOLD = 40; // minPts?
 const MIN_NEIGHBORS_REQURIED = 1;
 const COLORS = [
   "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", 
@@ -79,7 +79,7 @@ function drawClusters(clusters, noise) {
   clusters.forEach((cluster, index) => {
     let clusterColor = COLORS[index];
 
-    // drawClusterOutline(cluster);
+    drawClusterOutline(cluster);
     cluster.forEach((p) => renderPoint(p, clusterColor))
   });
 
@@ -99,7 +99,7 @@ function renderPoint({ x, y }, color) {
 
 
 function drawClusterOutline(cluster) {
-    let boxMinWidth = 30; 
+    let boxMinWidth = 10; 
     let lowerX = cluster[0].x;
     let upperX = cluster[0].x;
     let lowerY = cluster[0].y;
@@ -119,8 +119,8 @@ function drawClusterOutline(cluster) {
     let centerY = upperY - boxHeight / 2;
 
     box.classList.add("box");
-    box.style.width = `${boxWidth + 30}px`;
-    box.style.height = `${boxHeight + 30}px`;
+    box.style.width = `${boxWidth + 5}px`;
+    box.style.height = `${boxHeight + 5}px`;
     box.style.left = `${centerX}px`;
     box.style.top = `${centerY}px`;
 
@@ -151,7 +151,6 @@ function dbScan(points, threshold, neighborsRequired) {
   let clusters = [];
   let corePointsHM = getCorePoints(points, threshold, neighborsRequired);
   let corePointsArr = points.filter((p) => inHashMap(corePointsHM, p));
-  let noise = points.filter((p) => !inHashMap(corePointsHM, p));
   let processed = {};
 
   for (let corePoint of corePointsArr) {
@@ -170,10 +169,15 @@ function dbScan(points, threshold, neighborsRequired) {
       neighbors
         ?.filter((nPoint) => inHashMap(corePointsHM, nPoint) && !inHashMap(processed, nPoint))
         ?.forEach((point) => candidates.push(point));
+
+      cluster.push(...neighbors);
     }
 
     clusters.push(cluster);
   }
+
+  let flat = clusters.flat();
+  let noise = points.filter((p) => !flat.includes(p));
 
   return {clusters, noise };
 }
