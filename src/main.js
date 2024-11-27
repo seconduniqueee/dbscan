@@ -1,8 +1,6 @@
 const MAX_POINTS = 60;
 const THRESHOLD = 80; // minPts?
-const grid = document.querySelector(".grid");
-const points = generateSetOfPoints();
-const colors = [
+const COLORS = [
   "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", 
   "#800000", "#808000", "#008000", "#000080", "#800080", "#808080", 
   "#C0C0C0", "#FFD700", "#FF6347", "#98FB98", "#FF1493", "#FF4500", 
@@ -10,9 +8,12 @@ const colors = [
   "#C71585", "#B0E0E6", "#A9A9A9", "#000000", "#FFFFFF", "#8B0000"
 ];
 
+let grid = document.querySelector(".grid");
+let points = generateSetOfPoints();
 let clusters = generateClusters(points);
 
 drawClusters(clusters);
+
 
 function generateClusters(points) {
   let clusters = [];
@@ -29,20 +30,16 @@ function generateClusters(points) {
     let candidates = [point];
     let addToCluster = add.bind(this, cluster);
 
+    addToCluster(point);
+
     while (candidates?.length) {
       let candidate = candidates.pop();
-
-      addToCluster(candidate);
-
       let pointsWithinDistance = points.filter((point) => {
         let alreadyAdded = addedClusterPoints.get(point);
-        let withinRange = calcDistance(point, candidate) < THRESHOLD;
-        let notSamePoint = point !== candidate;
-        if (alreadyAdded) {
-          console.log("heh")
-        }
+        let withinRange = calcDistance(point, candidate) <= THRESHOLD;
+        let isCandidate = point === candidate;
 
-        return !alreadyAdded && withinRange && notSamePoint;
+        return !alreadyAdded && withinRange && !isCandidate;
       });
 
       pointsWithinDistance.forEach((point) => {
@@ -52,7 +49,6 @@ function generateClusters(points) {
     }
 
     clusters.push(cluster);
-    console.log(cluster);
   });
 
   return clusters;
@@ -68,7 +64,7 @@ function generateSetOfPoints() {
   let widthBoundary = window.innerWidth - offset;
   let heightBoundary = window.innerHeight - offset
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < MAX_POINTS; i++) {
     let x = getRandomInteger(offset, widthBoundary);
     let y = getRandomInteger(offset, heightBoundary);
     let pointValue = getRandomInteger(1, 100);
@@ -81,7 +77,7 @@ function generateSetOfPoints() {
 
 function drawClusters(clusters) {
   clusters.forEach((cluster, index) => {
-    let clusterColor = colors[index];
+    let clusterColor = COLORS[index];
 
     drawClusterOutline(cluster);
     cluster.forEach((p) => renderPoint(p, clusterColor))
@@ -115,13 +111,12 @@ function drawClusterOutline(cluster) {
     });
 
     let box = document.createElement("div");
-    
     let boxWidth = Math.max(upperX - lowerX + 5, boxMinWidth);
     let boxHeight = Math.max(upperY - lowerY + 5, boxMinWidth);
     let centerX = upperX - boxWidth / 2;
     let centerY = upperY - boxHeight / 2;
 
-    box.classList.add("box")
+    box.classList.add("box");
     box.style.width = `${boxWidth + 30}px`;
     box.style.height = `${boxHeight + 30}px`;
     box.style.left = `${centerX}px`;
