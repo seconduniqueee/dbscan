@@ -1,0 +1,40 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+}
+
+.grid {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background-color: #333;
+}
+
+.point {
+    position: fixed;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    transform: translate(-50%, -50%);
+}
+
+.box {
+    border: 2px dashed #fff;
+    display: flex;
+    color: #fff;
+    align-items: center;    
+    justify-content: center;
+    position: fixed;
+    transform: translate(-50%, -50%);
+}
