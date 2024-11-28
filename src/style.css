@@ -4,20 +4,21 @@
     box-sizing: border-box;
 }
 
+html,
 body {
-    width: 100vw;
-    height: 100vh;
+    font-family: sans-serif;
 }
 
 .grid {
-    width: 100vw;
-    height: 100vh;
+    width: 1000px;
+    height: 550px;
+    margin: 10px auto;
     position: relative;
     background-color: #333;
 }
 
 .point {
-    position: fixed;
+    position: absolute;
     width: 7px;
     height: 7px;
     border-radius: 50%;
@@ -35,6 +36,48 @@ body {
     color: #fff;
     align-items: center;    
     justify-content: center;
-    position: fixed;
+    position: absolute;
     transform: translate(-50%, -50%);
+}
+
+h1 {
+    text-align: center;
+}
+
+.controls {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 10px;
+}
+
+.control {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 3px;
+    flex-direction: column;
+}
+
+.control label {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.control input {
+    height: 30px;
+    width: 150px;
+    border: 1px solid #333;
+    padding: 0 10px;
+    font-size: 13px;
+}
+
+.gen-clusters button {
+    width: 200px;
+    height: 30px;
+    outline: none;
+    border: none;
+    text-align: center;
+    cursor: pointer;
 }

@@ -1,6 +1,10 @@
-const MAX_POINTS = 500;
-const THRESHOLD = 40; // minPts?
-const MIN_NEIGHBORS_REQURIED = 1;
+const controls = {
+  totalPoints: document.querySelector(".control input#total-points"),
+  threshold: document.querySelector(".control input#threshold"),
+  minNeighbors: document.querySelector(".control input#min-neighbors"),
+  button: document.querySelector(".gen-clusters button"),
+}
+
 const COLORS = [
   "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", 
   "#800000", "#808000", "#008000", "#000080", "#800080", "#808080", 
@@ -9,64 +13,43 @@ const COLORS = [
   "#C71585", "#B0E0E6", "#A9A9A9", "#000000", "#FFFFFF", "#8B0000",
 ];
 
-let grid = document.querySelector(".grid");
-let points = generateSetOfPoints();
-let { clusters, noise } = dbScan(points, THRESHOLD, MIN_NEIGHBORS_REQURIED);
+controls.button.addEventListener("click", () => {
+  let total = controls.totalPoints.value;
+  let threshold = controls.threshold.value;
+  let minNeighbors = controls.minNeighbors.value;
 
-drawClusters(clusters, noise);
+  if (!total) {
+    alert("total is not provided");
+    return;
+  }
 
-function generateClusters(points) {
-  let clusters = [];
-  let addedClusterPoints = new Map();
-  let add = (cluster, point) => {
-    addedClusterPoints.set(point, true);
-    cluster.push(point);
-  };
+  if (!threshold) {
+    alert("threshold is not provided");
+    return;
+  }
 
-  points.forEach((point) => {
-    if (addedClusterPoints.get(point)) return;
+  if (!minNeighbors) {
+    alert("min distance is not provided");
+    return;
+  }
 
-    let cluster = [];
-    let candidates = [point];
-    let addToCluster = add.bind(this, cluster);
+  let grid = document.querySelector(".grid");
+  let rect = grid.getBoundingClientRect();
+  let maxWidth = rect.width;
+  let maxHeight = rect.height;
+  let offset = 10;
+  let points = generateSetOfPoints(+total, maxWidth, maxHeight, offset);
+  let result = dbScan(points, +threshold, +minNeighbors);
 
-    addToCluster(point);
+  drawClusters(result.clusters, result.noise, grid);
+});
 
-    while (candidates?.length) {
-      let candidate = candidates.pop();
-      let pointsWithinDistance = points.filter((point) => {
-        let alreadyAdded = addedClusterPoints.get(point);
-        let withinRange = calcDistance(point, candidate) <= THRESHOLD;
-        let isCandidate = point === candidate;
-
-        return !alreadyAdded && withinRange && !isCandidate;
-      });
-
-      pointsWithinDistance.forEach((point) => {
-        candidates.push(point);
-        addToCluster(point);
-      });
-    }
-
-    clusters.push(cluster);
-  });
-
-  return clusters;
-}
-
-function getRandomInteger(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function generateSetOfPoints() {
+function generateSetOfPoints(numberOfPoints, maxWidth, maxHeight, offset) {
   let result = [];
-  let offset = 40;
-  let widthBoundary = window.innerWidth - offset;
-  let heightBoundary = window.innerHeight - offset
 
-  for (let i = 0; i < MAX_POINTS; i++) {
-    let x = getRandomInteger(offset, widthBoundary);
-    let y = getRandomInteger(offset, heightBoundary);
+  for (let i = 0; i < numberOfPoints; i++) {
+    let x = getRandomInteger(offset, maxWidth - offset);
+    let y = getRandomInteger(offset, maxHeight - offset);
     let pointValue = getRandomInteger(1, 100);
 
     result.push({ x, y, pointValue });
@@ -75,18 +58,20 @@ function generateSetOfPoints() {
   return result;
 }
 
-function drawClusters(clusters, noise) {
+function drawClusters(clusters, noise, grid) {
+  grid.innerHTML = "";
+
   clusters.forEach((cluster, index) => {
     let clusterColor = COLORS[index];
 
-    drawClusterOutline(cluster);
-    cluster.forEach((p) => renderPoint(p, clusterColor))
+    // drawClusterOutline(cluster, grid);
+    cluster.forEach((p) => renderPoint(p, clusterColor, grid))
   });
 
-  noise.forEach((p) => renderPoint(p, "#fff"));
+  noise.forEach((p) => renderPoint(p, "#fff", grid));
 }
 
-function renderPoint({ x, y }, color) {
+function renderPoint({ x, y }, color, grid) {
   let point = document.createElement("div");
   
   point.classList.add("point");
@@ -97,8 +82,7 @@ function renderPoint({ x, y }, color) {
   grid.appendChild(point);
 }
 
-
-function drawClusterOutline(cluster) {
+function drawClusterOutline(cluster, grid) {
     let boxMinWidth = 10; 
     let lowerX = cluster[0].x;
     let upperX = cluster[0].x;
@@ -134,17 +118,8 @@ function calcDistance(point1, point2) {
   return Math.sqrt(dx**2 + dy**2);
 }
 
-// DB Scan
-function getPointKey(point) {
-  return `${point.x},${point.y}`;
-}
-
-function inHashMap(hm, point) {
-  return hm[getPointKey(point)];
-}
-
-function addToHashMap(hm, point, value) {
-  hm[getPointKey(point)] = value || true;
+function getRandomInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function dbScan(points, threshold, neighborsRequired) {
@@ -199,4 +174,18 @@ function getCorePoints(points, threshold, neighborsRequired) {
   }
 
   return corePoints;
+}
+
+
+// UTILS
+function getPointKey(point) {
+  return `${point.x},${point.y}`;
+}
+
+function inHashMap(hm, point) {
+  return hm[getPointKey(point)];
+}
+
+function addToHashMap(hm, point, value) {
+  hm[getPointKey(point)] = value || true;
 }

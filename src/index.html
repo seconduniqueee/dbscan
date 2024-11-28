@@ -7,7 +7,33 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="grid"></div>
+    <div class="content">
+        <h1>DB Scan</h1>
+    
+        <div class="controls">
+            <div class="control">
+                <label for="total-points">Points to render</label>
+                <input id="total-points" type="number" name="total-points" min="0" value="200" />
+            </div>
+        
+            <div class="control">
+                <label for="threshold">Threshold</label>
+                <input id="threshold" type="number" name="threshold" min="0" value="40" />
+            </div>
+    
+            <div class="control">
+                <label>Core Point Min Neighbors</label>
+                <input id="min-neighbors" type="number" name="min-neighbors" min="0" value="1"/>
+            </div>
+    
+            <div class="gen-clusters">
+                <button>Generate Clusters</button>
+            </div>
+        </div>
+    
+
+        <div class="grid"></div>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>
